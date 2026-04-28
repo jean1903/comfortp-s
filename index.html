@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Avaliação Biomecânica Gratuita | ComfortPés</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy:        #1a3557;
+  --navy-deep:   #0f2035;
+  --navy-mid:    #264873;
+  --sky:         #4a7ab5;
+  --sky-light:   #6b9fd4;
+  --ice:         #ddeaf9;
+  --ice-soft:    #f0f6ff;
+  --mint:        #1f9e52;
+  --mint-dark:   #177a3e;
+  --mint-light:  #25b85e;
+  --cream:       #f7fafd;
+  --white:       #ffffff;
+  --danger:      #d63031;
+  --danger-soft: #fff0f0;
+  --danger-mid:  #ffe0e0;
+  --gold:        #e5a820;
+  --text-dark:   #0d1f33;
+  --text-mid:    #3a5472;
+  --text-light:  #7896b4;
+  --shadow:      0 12px 50px rgba(15,32,53,.15);
+  --shadow-sm:   0 4px 20px rgba(15,32,53,.08);
+  --r:           24px;
+  --r-sm:        14px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{
+  font-family:'Sora',sans-serif;
+  background:var(--cream);
+  color:var(--text-dark);
+  min-height:100vh;
+  overflow-x:hidden;
+}
+
+/* ── BACKGROUND ── */
+.bg{position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:linear-gradient(155deg,#deeeff 0%,#f0f6ff 45%,#e4f7ec 100%)}
+.bg::after{content:'';position:absolute;inset:0;
+  background:
+    radial-gradient(circle at 10% 15%,rgba(74,122,181,.13) 0%,transparent 55%),
+    radial-gradient(circle at 88% 82%,rgba(31,158,82,.10) 0%,transparent 50%);
+}
+.grid{position:absolute;inset:0;
+  background-image:linear-gradient(rgba(26,53,87,.035) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(26,53,87,.035) 1px,transparent 1px);
+  background-size:44px 44px}
+
+/* ── WRAPPER ── */
+#app{position:relative;z-index:1;min-height:100vh;
+  display:flex;flex-direction:column;align-items:center;
+  padding:20px 16px 80px}
+
+/* ── HEADER CHIP ── */
+.chip{
+  display:inline-flex;align-items:center;gap:9px;
+  background:var(--navy);color:#fff;
+  padding:10px 22px;border-radius:50px;
+  font-size:12px;font-weight:700;letter-spacing:.06em;
+  margin-bottom:24px;
+  box-shadow:0 6px 25px rgba(15,32,53,.3);
+  animation:slideDown .55s ease}
+.chip-dot{width:8px;height:8px;border-radius:50%;background:#25b85e;
+  box-shadow: 0 0 10px #25b85e;
+  animation:blink 1.4s infinite}
+@keyframes blink{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(1.4)}}
+
+/* ── SCREENS ── */
+.screen{display:none;flex-direction:column;align-items:center;width:100%}
+.screen.active{display:flex}
+
+/* ── PROGRESS BAR ── */
+.prog-wrap{width:100%;max-width:580px;margin-bottom:22px;animation:slideDown .5s ease .1s both}
+.prog-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.prog-label{font-size:12px;color:var(--text-light);font-weight:600}
+.prog-pct{font-size:12px;color:var(--navy);font-weight:800}
+.prog-bar{height:6px;background:rgba(26,53,87,.1);border-radius:10px;overflow:hidden}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--sky),var(--mint));
+  border-radius:10px;transition:width .55s cubic-bezier(.4,0,.2,1)}
+
+/* ── CARD COMPONENT ── */
+.card{
+  width:100%;max-width:580px;
+  background:#fff;
+  border-radius:var(--r);
+  box-shadow:var(--shadow);
+  padding:40px 36px 34px;
+  border:1px solid rgba(26,53,87,.06);
+  animation:fadeUp .45s ease}
+@media(max-width:500px){.card{padding:28px 20px 26px}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(25px)}to{opacity:1;transform:translateY(0)}}
+@keyframes slideDown{from{opacity:0;transform:translateY(-15px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── STEP META ── */
+.step-tag{
+  display:inline-flex;align-items:center;gap:7px;
+  background:var(--ice-soft);border:1px solid var(--ice);
+  padding:6px 14px;border-radius:50px;
+  font-size:11px;color:var(--sky);font-weight:700;
+  letter-spacing:.04em;margin-bottom:16px}
+.step-icon{font-size:36px;margin-bottom:16px;display:block}
+.q-num{font-size:11px;text-transform:uppercase;letter-spacing:.12em;
+  color:var(--text-light);font-weight:700;margin-bottom:8px}
+.q-title{
+  font-family:'Playfair Display',serif;
+  font-size:clamp(20px, 4.5vw, 26px);
+  color:var(--navy-deep);line-height:1.25;margin-bottom:8px}
+.q-sub{font-size:14px;color:var(--text-mid);line-height:1.6;margin-bottom:28px}
+
+/* ── OPTIONS ── */
+.opts{display:flex;flex-direction:column;gap:10px}
+.opt{
+  display:flex;align-items:center;gap:14px;
+  padding:16px 18px;
+  border:2px solid rgba(26,53,87,.08);
+  border-radius:var(--r-sm);
+  background:var(--white);
+  cursor:pointer;text-align:left;width:100%;
+  font-family:'Sora',sans-serif;font-size:15px;
+  color:var(--text-dark);font-weight:500;
+  transition:all .2s ease;position:relative;overflow:hidden}
+.opt::before{content:'';position:absolute;inset:0;
+  background:linear-gradient(120deg,rgba(74,122,181,.05),rgba(31,158,82,.03));
+  opacity:0;transition:opacity .25s}
+.opt:hover{border-color:var(--sky-light);transform:translateX(4px);box-shadow:var(--shadow-sm)}
+.opt:hover::before{opacity:1}
+.opt.sel{border-color:var(--navy);background:var(--ice-soft);transform:translateX(4px)}
+.opt.sel::before{opacity:1}
+.opt-ico{
+  font-size:22px;flex-shrink:0;width:42px;height:42px;
+  background:var(--cream);border-radius:12px;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 2px 8px rgba(26,53,87,.07);
+  position:relative;z-index:1}
+.opt-body{position:relative;z-index:1;flex:1;line-height:1.4}
+.opt-sub{font-size:11px;color:var(--text-light);font-weight:400;
+  display:block;margin-top:2px}
+.opt-chk{
+  width:22px;height:22px;border-radius:50%;flex-shrink:0;
+  border:2px solid rgba(26,53,87,.15);
+  display:flex;align-items:center;justify-content:center;
+  position:relative;z-index:1;transition:all .2s}
+.opt.sel .opt-chk{background:var(--navy);border-color:var(--navy)}
+.opt.sel .opt-chk::after{content:'✓';color:#fff;font-size:12px;font-weight:800}
+
+/* ── SCALE ── */
+.scale-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:10px}
+.sc-btn{
+  aspect-ratio:1;border:2px solid rgba(26,53,87,.1);border-radius:14px;
+  background:var(--white);cursor:pointer;
+  display:flex;flex-direction:column;align-items:center;
+  justify-content:center;gap:4px;
+  font-family:'Sora',sans-serif;font-size:20px;font-weight:800;
+  color:var(--navy);transition:all .2s}
+.sc-btn span{font-size:10px;font-weight:600;color:var(--text-light)}
+.sc-btn:hover{transform:translateY(-4px);box-shadow:var(--shadow-sm)}
+.sc-btn.lv1{color:#1f9e52;border-color:rgba(31,158,82,.2)}
+.sc-btn.lv2{color:#8db84a;border-color:rgba(141,184,74,.2)}
+.sc-btn.lv3{color:#e5a820;border-color:rgba(229,168,32,.2)}
+.sc-btn.lv4{color:#e5732a;border-color:rgba(229,115,42,.2)}
+.sc-btn.lv5{color:#d63031;border-color:rgba(214,48,49,.2)}
+.sc-btn.sel{background:var(--navy);color:#fff;border-color:var(--navy);transform:translateY(-4px)}
+.sc-btn.sel span{color:rgba(255,255,255,.7)}
+.sc-labels{display:flex;justify-content:space-between;
+  font-size:11px;color:var(--text-light);margin-top:4px;font-weight:600}
+
+/* ── BUTTONS ── */
+.cont-btn{
+  width:100%;padding:18px;
+  background:linear-gradient(135deg,var(--navy),var(--sky));
+  color:#fff;border:none;border-radius:var(--r-sm);
+  font-family:'Sora',sans-serif;font-size:16px;font-weight:700;
+  cursor:pointer;margin-top:24px;
+  box-shadow:0 8px 25px rgba(26,53,87,.25);
+  letter-spacing:.02em;transition:all .28s;
+  display:none}
+.cont-btn.show{display:block;animation:fadeUp .3s ease}
+.cont-btn:hover{transform:translateY(-2px);box-shadow:0 12px 30px rgba(26,53,87,.35)}
+
+/* ── INTRO ── */
+.intro-card{
+  width:100%;max-width:580px;background:#fff;
+  border-radius:var(--r);box-shadow:var(--shadow);
+  padding:48px 40px;text-align:center;
+  border:1px solid rgba(26,53,87,.06);animation:fadeUp .6s ease}
+@media(max-width:500px){.intro-card{padding:32px 24px}}
+.intro-warn{
+  display:inline-flex;align-items:center;gap:8px;
+  background:var(--danger-soft);border:1px solid var(--danger-mid);
+  padding:10px 20px;border-radius:50px;
+  font-size:12px;color:var(--danger);font-weight:700;
+  letter-spacing:.04em;margin-bottom:24px}
+.intro-icon{
+  width:84px;height:84px;border-radius:26px;
+  background:linear-gradient(135deg,var(--navy),var(--sky));
+  display:flex;align-items:center;justify-content:center;
+  font-size:40px;margin:0 auto 24px;
+  box-shadow:0 10px 25px rgba(26,53,87,.25)}
+.intro-h{
+  font-family:'Playfair Display',serif;
+  font-size:clamp(24px, 6vw, 34px);
+  color:var(--navy-deep);line-height:1.2;margin-bottom:16px}
+.intro-h em{font-style:italic;color:var(--danger)}
+.intro-sub{font-size:15px;color:var(--text-mid);line-height:1.75;
+  margin-bottom:32px;max-width:460px;margin-left:auto;margin-right:auto}
+.intro-sub strong{color:var(--navy);font-weight:700}
+.start-btn{
+  display:block;width:100%;padding:20px;
+  background:linear-gradient(135deg,var(--mint-dark),var(--mint-light));
+  color:#fff;border:none;border-radius:var(--r-sm);
+  font-family:'Sora',sans-serif;font-size:18px;font-weight:800;
+  cursor:pointer;letter-spacing:.02em;
+  box-shadow:0 10px 30px rgba(31,158,82,.35);
+  transition:all .3s;margin-bottom:16px}
+.start-btn:hover{transform:translateY(-4px);box-shadow:0 15px 40px rgba(31,158,82,.45)}
+.intro-micro{font-size:12px;color:var(--text-light);display:flex;
+  justify-content:center;gap:18px;flex-wrap:wrap;font-weight:500}
+.intro-micro span{display:flex;align-items:center;gap:6px}
+.social-proof-bar{
+  background:var(--ice-soft);border:1px solid var(--ice);
+  border-radius:var(--r-sm);padding:14px 18px;
+  display:flex;align-items:center;gap:12px;
+  margin-bottom:30px;text-align:left}
+.sp-ico{font-size:24px}
+.sp-txt{font-size:13px;color:var(--text-mid);line-height:1.5}
+.sp-txt strong{color:var(--navy);display:block;font-size:14px}
+
+/* ── ANALYSIS ── */
+.analysis-wrap{width:100%;max-width:580px}
+.analysis-circle{
+  width:100px;height:100px;border-radius:50%;
+  background:linear-gradient(135deg,var(--navy),var(--sky));
+  display:flex;align-items:center;justify-content:center;
+  font-size:42px;margin:0 auto 24px;
+  box-shadow:0 10px 30px rgba(26,53,87,.25);
+  animation:pulse 1.6s ease infinite}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
+.analysis-dots{display:flex;justify-content:center;gap:8px;margin-bottom:24px}
+.a-dot{width:10px;height:10px;border-radius:50%;background:var(--ice);
+  animation:dotF 1.2s infinite ease-in-out}
+.a-dot:nth-child(2){animation-delay:.2s}
+.a-dot:nth-child(3){animation-delay:.4s}
+@keyframes dotF{0%,100%{transform:scale(.5);opacity:.3}50%{transform:scale(1.2);opacity:1;background:var(--sky)}}
+.a-items{list-style:none;text-align:left;max-width:340px;margin:0 auto}
+.a-item{display:flex;align-items:center;gap:12px;margin-bottom:14px;
+  font-size:14px;font-weight:600;color:var(--text-mid);opacity:0;transform:translateX(-10px);transition:all .4s}
+.a-item.show{opacity:1;transform:translateX(0)}
+.a-ck{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0}
+.a-ck.ok{background:var(--mint-light);color:#fff}
+.a-ck.warn{background:var(--gold);color:#fff}
+
+/* ── RESULT ── */
+.timer-chip{
+  background:var(--danger);color:#fff;padding:8px 18px;border-radius:50px;
+  font-size:13px;font-weight:800;margin-bottom:20px;
+  box-shadow:0 6px 20px rgba(214,48,49,.3);animation:pulse 1.6s infinite}
+.result-card{width:100%;max-width:620px;background:#fff;border-radius:var(--r);box-shadow:var(--shadow);overflow:hidden;animation:fadeUp .6s ease}
+.res-head{padding:44px 40px 34px;text-align:center;background:linear-gradient(to bottom, var(--ice-soft), #fff)}
+.res-badge{display:inline-block;padding:6px 14px;background:rgba(26,53,87,.08);color:var(--navy);border-radius:50px;font-size:11px;font-weight:800;letter-spacing:.08em;margin-bottom:18px}
+.res-score{font-size:64px;font-weight:900;color:var(--navy-deep);line-height:1;margin-bottom:12px;font-family:'Playfair Display',serif}
+.res-score sup{font-size:24px;top:-0.8em;color:var(--text-light)}
+.res-title{font-family:'Playfair Display',serif;font-size:28px;color:var(--navy-deep);margin-bottom:12px}
+.res-sub{font-size:15px;color:var(--text-mid);line-height:1.65;max-width:480px;margin:0 auto 24px}
+.timer-box{display:inline-flex;align-items:center;gap:8px;padding:10px 20px;background:var(--danger-soft);border:1px solid var(--danger-mid);border-radius:12px;color:var(--danger);font-weight:800;font-size:14px}
+
+.res-body{padding:0 40px 44px}
+@media(max-width:500px){.res-head,.res-body{padding:32px 20px}}
+.sec-label{font-size:13px;font-weight:800;color:var(--text-light);text-transform:uppercase;letter-spacing:.1em;margin-bottom:18px;display:flex;align-items:center;gap:10px}
+.sec-label::after{content:'';flex:1;height:1px;background:rgba(26,53,87,.08)}
+
+.diag-list{display:flex;flex-direction:column;gap:12px;margin-bottom:36px}
+.diag-item{display:flex;gap:16px;padding:18px;border-radius:16px;border:1px solid rgba(26,53,87,.06);transition:all .2s}
+.diag-item:hover{background:var(--ice-soft);transform:translateY(-2px)}
+.diag-ico{font-size:24px;flex-shrink:0;width:48px;height:48px;background:#fff;border-radius:12px;display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow-sm)}
+.diag-txt{font-size:14px;font-weight:700;color:var(--navy-deep);margin-bottom:4px}
+.diag-sub{font-size:12px;color:var(--text-mid);line-height:1.5}
+.diag-item.red{border-left:5px solid var(--danger)}
+.diag-item.yellow{border-left:5px solid var(--gold)}
+.diag-item.green{border-left:5px solid var(--mint)}
+
+.rx-box{background:var(--navy-deep);border-radius:20px;padding:34px;color:#fff;position:relative;overflow:hidden;box-shadow:0 15px 40px rgba(15,32,53,.35)}
+.rx-box::before{content:'';position:absolute;top:-50px;right:-50px;width:150px;height:150px;background:var(--sky);border-radius:50%;opacity:.1}
+.rx-lbl{font-size:11px;font-weight:800;letter-spacing:.12em;color:var(--sky-light);text-transform:uppercase;margin-bottom:20px;display:block}
+
+/* CARROSSEL */
+.img-carousel{position:relative;width:100%;border-radius:14px;overflow:hidden;margin-bottom:24px;background:#fff;aspect-ratio:16/9}
+.img-slides{display:flex;transition:transform .5s cubic-bezier(.4,0,.2,1);height:100%}
+.img-slide{min-width:100%;height:100%}
+.img-slide img{width:100%;height:100%;object-fit:cover}
+.c-nav{position:absolute;top:50%;transform:translateY(-50%);width:36px;height:36px;background:rgba(255,255,255,.9);border:none;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;color:var(--navy);z-index:2;box-shadow:0 4px 12px rgba(0,0,0,.15);transition:all .2s}
+.c-nav:hover{background:#fff;transform:translateY(-50%) scale(1.1)}
+.c-prev{left:12px}
+.c-next{right:12px}
+.c-dots{position:absolute;bottom:12px;left:50%;transform:translateX(-50%);display:flex;gap:6px;z-index:2}
+.c-dot{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.4);cursor:pointer;transition:all .2s}
+.c-dot.active{width:20px;border-radius:10px;background:#fff}
+
+.rx-info{position:relative;z-index:1}
+.rx-h{font-family:'Playfair Display',serif;font-size:24px;margin-bottom:14px;line-height:1.25}
+.rx-p{font-size:14px;line-height:1.7;color:rgba(255,255,255,.85);margin-bottom:28px}
+.rx-p strong{color:#fff;font-weight:700}
+
+.cta-btn{display:block;width:100%;padding:20px;background:linear-gradient(135deg,var(--mint),var(--mint-light));color:#fff;border:none;border-radius:14px;font-family:'Sora',sans-serif;font-size:18px;font-weight:800;cursor:pointer;text-decoration:none;text-align:center;box-shadow:0 10px 30px rgba(31,158,82,.4);transition:all .3s;letter-spacing:.02em}
+.cta-btn:hover{transform:translateY(-4px);box-shadow:0 15px 45px rgba(31,158,82,.55)}
+.cta-sub{display:block;text-align:center;font-size:11px;color:rgba(255,255,255,.5);margin-top:14px;font-weight:500}
+
+/* ALERT INLINE */
+.inline-alert{
+  display:none;
+  background:var(--danger-soft);border:1px solid var(--danger-mid);
+  border-radius:12px;padding:14px 16px;
+  font-size:14px;color:var(--danger);font-weight:600;
+  margin-top:16px;line-height:1.5;
+  animation:fadeUp .3s ease}
+.inline-alert.show{display:flex;align-items:flex-start;gap:10px}
+
+</style>
+</head>
+<body>
+
+  <div class="bg"><div class="grid"></div></div>
+
+  <div id="app">
+    <!-- ══════════════ INTRO ══════════════ -->
+    <div class="screen active" id="s-intro">
+      <div class="chip"><div class="chip-dot"></div>Sistema Ativo · ComfortPés</div>
+      <div class="intro-card">
+        <div class="intro-warn">⚠️ AVALIAÇÃO BIOMECÂNICA GRATUITA</div>
+        <div class="intro-icon">🦶</div>
+        <h1 class="intro-h">Descubra por que seus pés <em>doem tanto</em> ao final do dia</h1>
+        <p class="intro-sub">
+          Em menos de <strong>60 segundos</strong>, identifique os pontos de sobrecarga na sua pisada e receba uma recomendação personalizada para eliminar o desconforto.
+        </p>
+        
+        <div class="social-proof-bar">
+          <div class="sp-ico">⭐</div>
+          <div class="sp-txt">
+            <strong>+12.480 avaliações realizadas</strong>
+            98.4% dos usuários identificaram a causa da dor.
+          </div>
+        </div>
+
+        <button class="start-btn" onclick="startQuiz()">INICIAR AVALIAÇÃO AGORA →</button>
+        
+        <div class="intro-micro">
+          <span>🔒 100% Privado</span>
+          <span>⚡ Resultado Imediato</span>
+          <span>✅ Recomendação Clínica</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════ QUIZ ══════════════ -->
+    <div class="screen" id="s-quiz">
+      <div class="chip"><div class="chip-dot"></div>Análise Biomecânica em Andamento</div>
+      <div class="prog-wrap">
+        <div class="prog-row">
+          <span class="prog-label" id="prog-lbl">Pergunta 1 de 6</span>
+          <span class="prog-pct" id="prog-pct">0%</span>
+        </div>
+        <div class="prog-bar"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+      </div>
+      <div class="card" id="q-card"></div>
+    </div>
+
+    <!-- ══════════════ ANÁLISE ══════════════ -->
+    <div class="screen" id="s-analysis">
+      <div class="chip"><div class="chip-dot"></div>Processando Dados · ComfortPés</div>
+      <div class="card analysis-wrap" style="text-align:center">
+        <div class="analysis-circle">🔬</div>
+        <h2 style="font-family:'Playfair Display',serif;color:var(--navy-deep);font-size:24px;margin-bottom:12px">
+          Analisando seu perfil de sobrecarga...
+        </h2>
+        <p style="color:var(--text-mid);font-size:14px;line-height:1.7;margin-bottom:24px">
+          Cruzando suas respostas com padrões biomecânicos de dor, impacto e desgaste articular.
+        </p>
+        <div class="analysis-dots">
+          <div class="a-dot"></div><div class="a-dot"></div><div class="a-dot"></div>
+        </div>
+        <ul class="a-items" id="a-list">
+          <li class="a-item"><div class="a-ck ok">✓</div><span>Perfil de dor identificado</span></li>
+          <li class="a-item"><div class="a-ck ok">✓</div><span>Nível de impacto diário calculado</span></li>
+          <li class="a-item"><div class="a-ck warn">⚠</div><span>Região de maior sobrecarga localizada</span></li>
+          <li class="a-item"><div class="a-ck ok">✓</div><span>Recomendação personalizada encontrada</span></li>
+          <li class="a-item"><div class="a-ck ok">🎁</div><span>Cupom de desconto liberado</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- ══════════════ RESULTADO ══════════════ -->
+    <div class="screen" id="s-result">
+      <div class="timer-chip">⏱ Desconto reservado por: <span id="cd">14:59</span></div>
+      
+      <div class="result-card">
+        <div class="res-head">
+          <div class="res-badge">📋 LAUDO DA AVALIAÇÃO</div>
+          <div class="res-score" id="res-score">--<sup>/100</sup></div>
+          <h2 class="res-title" id="res-title">Processando...</h2>
+          <p class="res-sub" id="res-sub">Aguarde enquanto geramos seu diagnóstico.</p>
+          <div class="timer-box">⏱ Oferta expira em: <span id="cd2">14:59</span></div>
+        </div>
+
+        <div class="res-body">
+          <div class="sec-label">🩺 Diagnóstico Detalhado</div>
+          <div class="diag-list" id="diag-list"></div>
+
+          <div class="rx-box">
+            <span class="rx-lbl">Prescrição ComfortPés</span>
+            
+            <div class="img-carousel" id="rx-carousel">
+              <button class="c-nav c-prev" onclick="moveCarousel(-1)">❮</button>
+              <button class="c-nav c-next" onclick="moveCarousel(1)">❯</button>
+              <div class="img-slides" id="rx-slides">
+                <!-- Imagens ilustrativas de alta qualidade -->
+                <div class="img-slide"><img src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=800&q=80" alt="Palmilha 4D"></div>
+                <div class="img-slide"><img src="https://images.unsplash.com/photo-1560769629-975ec94e6a86?auto=format&fit=crop&w=800&q=80" alt="Conforto"></div>
+                <div class="img-slide"><img src="https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?auto=format&fit=crop&w=800&q=80" alt="Tecnologia"></div>
+                <div class="img-slide"><img src="https://images.unsplash.com/photo-1460353581641-37baddab0fa2?auto=format&fit=crop&w=800&q=80" alt="Qualidade de vida"></div>
+              </div>
+              <div class="c-dots">
+                <div class="c-dot active" onclick="goSlide(0)"></div>
+                <div class="c-dot" onclick="goSlide(1)"></div>
+                <div class="c-dot" onclick="goSlide(2)"></div>
+                <div class="c-dot" onclick="goSlide(3)"></div>
+              </div>
+            </div>
+
+            <div class="rx-info">
+              <h3 class="rx-h">Palmilha ComfortPés 4D</h3>
+              <p class="rx-p" id="rx-about">
+                Carregando recomendação...
+              </p>
+              
+              <a href="https://SUA-LOJA.com/checkout" class="cta-btn">GARANTIR MEU DESCONTO AGORA →</a>
+              <span class="cta-sub">🔒 Compra 100% segura e garantida</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+// ══════ CONFIGURAÇÃO ══════
+const questions = [
+  {
+    icon: '⏰',
+    tag: 'CARGA HORÁRIA',
+    title: 'Quantas horas por dia você costuma passar em pé ou caminhando?',
+    sub: 'Isso nos ajuda a calcular o nível de compressão nas suas articulações.',
+    opts: [
+      { lbl: 'Menos de 2 horas', val: 1, txt: 'Carga baixa', emoji: '☁️' },
+      { lbl: 'Entre 2 e 5 horas', val: 2, txt: 'Carga moderada', emoji: '🚶' },
+      { lbl: 'Entre 5 e 8 horas', val: 3, txt: 'Carga alta', emoji: '⚠️', alert: 'Atenção: Mais de 5h em pé gera fadiga crônica nos tecidos plantares.' },
+      { lbl: 'Mais de 8 horas', val: 4, txt: 'Carga crítica', emoji: '🚨', alert: 'Crítico: Sua rotina exige suporte ortopédico imediato para evitar lesões.' }
+    ]
+  },
+  {
+    icon: '📍',
+    tag: 'LOCALIZAÇÃO',
+    title: 'Em qual região do pé você sente mais desconforto?',
+    sub: 'Identificar o ponto exato é crucial para a indicação da densidade da palmilha.',
+    opts: [
+      { lbl: 'No calcanhar (atrás)', val: 4, txt: 'Calcanhar', emoji: '🦴' },
+      { lbl: 'Na planta do pé (meio)', val: 3, txt: 'Arco plantar', emoji: '👣' },
+      { lbl: 'Na parte da frente (dedos)', val: 3, txt: 'Metatarso', emoji: '👟' },
+      { lbl: 'No pé inteiro', val: 4, txt: 'Geral', emoji: '🔥' },
+      { lbl: 'Não sinto dor (prevenção)', val: 1, txt: 'Preventivo', emoji: '✅' }
+    ]
+  },
+  {
+    icon: '📊',
+    tag: 'INTENSIDADE',
+    type: 'scale',
+    title: 'De 1 a 5, qual o nível da sua dor ao chegar em casa?',
+    sub: 'Considere o cansaço e a sensibilidade ao tocar os pés no chão.',
+    scaleLabels: ['Leve desconforto', 'Dor insuportável'],
+    opts: [
+      { lbl: '1', val: 1, alert: 'Fase ideal para prevenção.' },
+      { lbl: '2', val: 2, alert: 'Sinais iniciais de sobrecarga.' },
+      { lbl: '3', val: 3, alert: 'Nível moderado: Inflamação pode estar presente.' },
+      { lbl: '4', val: 4, alert: 'Alerta: Sua dor já está afetando seu humor e energia.' },
+      { lbl: '5', val: 5, alert: 'Grave: Risco alto de desenvolver fascite ou esporão.' }
+    ]
+  },
+  {
+    icon: '💼',
+    tag: 'ROTINA',
+    title: 'A dor nos pés já te impediu de fazer algo que você gosta?',
+    sub: 'Como passear, praticar esportes ou simplesmente trabalhar com foco.',
+    opts: [
+      { lbl: 'Sim, frequentemente', val: 4, txt: 'Limitante', emoji: '🚫' },
+      { lbl: 'Às vezes me limita', val: 3, txt: 'Incomoda', emoji: '⏳' },
+      { lbl: 'Raramente atrapalha', val: 2, txt: 'Suportável', emoji: '🆗' },
+      { lbl: 'Nunca me impediu', val: 1, txt: 'Sem impacto', emoji: '✨' }
+    ]
+  },
+  {
+    icon: '👟',
+    tag: 'CALÇADO',
+    title: 'Qual tipo de calçado você usa na maior parte do tempo?',
+    sub: 'O calçado é a base da sua estrutura óssea durante o dia.',
+    opts: [
+      { lbl: 'Sapato Social / Rígido', val: 4, txt: 'Rígido', emoji: '👞' },
+      { lbl: 'Bota ou Calçado de Segurança', val: 4, txt: 'Pesado', emoji: '🥾' },
+      { lbl: 'Salto Alto / Scarpin', val: 5, txt: 'Instável', emoji: '👠' },
+      { lbl: 'Tênis Esportivo / Casual', val: 2, txt: 'Flexível', emoji: '👟' },
+      { lbl: 'Chinelo ou Sandália', val: 3, txt: 'Sem suporte', emoji: '🩴' }
+    ]
+  },
+  {
+    icon: '🎯',
+    tag: 'OBJETIVO',
+    title: 'Se você pudesse eliminar essa dor hoje, o que faria primeiro?',
+    sub: 'Sua resposta define o foco da nossa recomendação.',
+    opts: [
+      { lbl: 'Trabalhar com mais disposição', val: 1, txt: 'Trabalho', emoji: '📈' },
+      { lbl: 'Voltar a caminhar/correr', val: 1, txt: 'Esporte', emoji: '🏃' },
+      { lbl: 'Brincar com meus filhos/netos', val: 1, txt: 'Família', emoji: '❤️' },
+      { lbl: 'Apenas ter paz e sem dor', val: 1, txt: 'Paz', emoji: '🧘' }
+    ]
+  }
+];
+
+let curQ = 0;
+let answers = [];
+let totalScore = 0;
+
+// ══════ CORE FUNCTIONS ══════
+function show(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+function renderQ(){
+  const q = questions[curQ];
+  const card = document.getElementById('q-card');
+  
+  // Progress
+  const pct = Math.round((curQ / questions.length) * 100);
+  document.getElementById('prog-lbl').textContent = `Pergunta ${curQ + 1} de ${questions.length}`;
+  document.getElementById('prog-pct').textContent = `${pct}%`;
+  document.getElementById('prog-fill').style.width = `${pct}%`;
+
+  let html = `
+    <div class="step-tag">${q.tag}</div>
+    <span class="step-icon">${q.icon}</span>
+    <h2 class="q-title">${q.title}</h2>
+    <p class="q-sub">${q.sub}</p>
+  `;
+
+  if(q.type !== 'scale'){
+    html += `<div class="opts">
+      ${q.opts.map((o,i)=>`
+        <button class="opt" id="opt-${i}" onclick="pickOpt(${i})">
+          <div class="opt-ico">${o.emoji}</div>
+          <div class="opt-body">
+            ${o.lbl}
+            <span class="opt-sub">${o.txt}</span>
+          </div>
+          <div class="opt-chk"></div>
+        </button>
+      `).join('')}
+    </div>
+    <div class="inline-alert" id="inline-alert">⚠️ <span id="alert-txt"></span></div>`;
+  } else {
+    html += `
+    <div class="scale-grid">
+      ${q.opts.map((o,i)=>`
+        <button class="sc-btn lv${i+1}" id="sc-${i}" onclick="pickScale(${i})">
+          ${o.lbl}
+          <span>Nível</span>
+        </button>
+      `).join('')}
+    </div>
+    <div class="sc-labels"><span>${q.scaleLabels[0]}</span><span>${q.scaleLabels[1]}</span></div>
+    <div class="inline-alert" id="inline-alert">⚠️ <span id="alert-txt"></span></div>`;
+  }
+
+  html += `<button class="cont-btn" id="cont-btn" onclick="nextQ()">Continuar para próxima etapa →</button>`;
+  card.innerHTML = html;
+}
+
+function showAlert(txt){
+  const el = document.getElementById('inline-alert');
+  const sp = document.getElementById('alert-txt');
+  if(!txt) {
+    if(el) el.classList.remove('show');
+    return;
+  }
+  if(el && sp){ sp.textContent = txt; el.classList.add('show'); }
+}
+
+function pickOpt(i){
+  const q = questions[curQ];
+  document.querySelectorAll('.opt').forEach(b=>b.classList.remove('sel'));
+  document.getElementById('opt-'+i).classList.add('sel');
+  answers[curQ] = {index:i, value:q.opts[i].val, text:q.opts[i].lbl};
+  showAlert(q.opts[i].alert);
+  document.getElementById('cont-btn').classList.add('show');
+}
+
+function pickScale(i){
+  const q = questions[curQ];
+  document.querySelectorAll('.sc-btn').forEach(b=>b.classList.remove('sel'));
+  document.getElementById('sc-'+i).classList.add('sel');
+  answers[curQ] = {index:i, value:q.opts[i].val, text:q.opts[i].lbl};
+  showAlert(q.opts[i].alert);
+  document.getElementById('cont-btn').classList.add('show');
+}
+
+function nextQ(){
+  if(!answers[curQ]) return;
+  curQ++;
+  if(curQ >= questions.length){ 
+    document.getElementById('prog-fill').style.width = `100%`;
+    document.getElementById('prog-pct').textContent = `100%`;
+    showAnalysis(); 
+  }
+  else { renderQ(); }
+}
+
+function startQuiz(){
+  show('s-quiz');
+  renderQ();
+}
+
+// ══════ ANÁLISE ══════
+function showAnalysis(){
+  show('s-analysis');
+  const items = document.querySelectorAll('.a-item');
+  items.forEach((item,i)=>{
+    setTimeout(()=>item.classList.add('show'), 500 + i*600);
+  });
+  setTimeout(showResult, 4000);
+}
+
+// ══════ RESULTADO ══════
+function showResult(){
+  show('s-result');
+
+  // Cálculo de Score
+  let score = 0;
+  answers.forEach(a => score += a.value);
+  const maxPossible = 26; // Soma dos valores máximos das questões
+  const pct = Math.min(100, Math.round((score/maxPossible)*100));
+  
+  // Ajuste visual para não desencorajar (mínimo 55)
+  const displayScore = Math.max(55, pct);
+  document.getElementById('res-score').innerHTML = `${displayScore}<sup>/100</sup>`;
+
+  let title, sub;
+  if(displayScore >= 80){
+    title = '⚠️ Risco Crítico de Lesão';
+    sub = 'Seu perfil indica uma sobrecarga severa nas articulações. A dor atual é um sinal de alerta do seu corpo para evitar danos permanentes.';
+  } else if(displayScore >= 65){
+    title = '⚠️ Risco Moderado a Alto';
+    sub = 'Você apresenta sinais claros de desgaste por impacto. Intervir agora é essencial para evitar que a dor se torne crônica.';
+  } else {
+    title = '✅ Perfil de Atenção Preventiva';
+    sub = 'Embora sua dor ainda não seja crítica, sua rotina gera um estresse constante que pode evoluir para lesões futuras.';
+  }
+  document.getElementById('res-title').textContent = title;
+  document.getElementById('res-sub').textContent = sub;
+
+  // Build Diagnóstico
+  const diags = buildDiag();
+  document.getElementById('diag-list').innerHTML = diags.map(d=>`
+    <div class="diag-item ${d.color}">
+      <div class="diag-ico">${d.ico}</div>
+      <div>
+        <div class="diag-txt">${d.txt}</div>
+        <div class="diag-sub">${d.sub}</div>
+      </div>
+    </div>
+  `).join('');
+
+  // Rx Texto
+  const goalIdx = answers[5] ? answers[5].index : 0;
+  const goals = [
+    'trabalhar com total disposição, sem o peso do cansaço extremo nos pés',
+    'voltar às suas atividades físicas com segurança e sem medo de novas lesões',
+    'aproveitar cada momento com sua família sem ser interrompido pela dor',
+    'finalmente recuperar a qualidade de vida e o conforto que você merece',
+  ];
+  document.getElementById('rx-about').innerHTML = `
+    Com base na sua análise biomecânica, a <strong>ComfortPés 4D</strong> foi identificada como a solução ideal. Sua tecnologia de absorção de impacto em camadas redistribui a pressão plantar, permitindo que você possa <strong>${goals[goalIdx]}</strong>.
+  `;
+
+  startCountdown();
+}
+
+function buildDiag(){
+  const d = [];
+  const h = answers[0]; // horas
+  const p = answers[1]; // local
+  const sc = answers[2]; // escala
+  const rt = answers[3]; // rotina
+  const shoe = answers[4]; // calçado
+
+  if(h.value >= 3) {
+    d.push({ico:'⏰', color:'red', txt:'Sobrecarga por Tempo de Exposição', sub:'O tempo excessivo em pé está comprimindo seus discos articulares.'});
+  } else {
+    d.push({ico:'⏰', color:'yellow', txt:'Exposição Moderada', sub:'Mesmo em tempos menores, a falta de amortecimento gera micro-traumas.'});
+  }
+
+  if(p.index !== 4) {
+    d.push({ico:'📍', color:'red', txt:`Foco de Inflamação no ${p.text}`, sub:'Essa região está recebendo o dobro da pressão recomendada para sua estrutura.'});
+  }
+
+  if(sc.value >= 4) {
+    d.push({ico:'📊', color:'red', txt:'Nível de Sensibilidade Agudo', sub:'Sua percepção de dor indica que os nervos plantares estão em estado de alerta.'});
+  }
+
+  if(rt.value >= 3) {
+    d.push({ico:'🚫', color:'red', txt:'Impacto na Qualidade de Vida', sub:'Sua autonomia está sendo comprometida pela dor. Necessário suporte imediato.'});
+  }
+
+  if(shoe.value >= 4) {
+    d.push({ico:'👞', color:'yellow', txt:'Calçado Agravante', sub:`O uso de ${shoe.text} sem suporte interno está acelerando o desgaste.`});
+  }
+
+  return d;
+}
+
+// ══════ UTILITÁRIOS ══════
+function startCountdown(){
+  let secs = 14*60+59;
+  function fmt(s){ return `${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}` }
+  const els = [document.getElementById('cd'), document.getElementById('cd2')];
+  const iv = setInterval(()=>{
+    const t = fmt(secs);
+    els.forEach(e=>{ if(e) e.textContent=t });
+    if(--secs<0) clearInterval(iv);
+  },1000);
+}
+
+let carSlide = 0;
+const carTotal = 4;
+function updateCarousel(){
+  const slides = document.getElementById('rx-slides');
+  const dots = document.querySelectorAll('.c-dot');
+  if(slides) slides.style.transform = `translateX(-${carSlide*100}%)`;
+  dots.forEach((d,i)=>d.classList.toggle('active', i===carSlide));
+}
+function moveCarousel(dir){
+  carSlide = (carSlide + dir + carTotal) % carTotal;
+  updateCarousel();
+}
+function goSlide(i){
+  carSlide = i;
+  updateCarousel();
+}
+setInterval(()=>{ if(document.getElementById('s-result').classList.contains('active')) moveCarousel(1); }, 4000);
+
+</script>
+</body>
+</html>
